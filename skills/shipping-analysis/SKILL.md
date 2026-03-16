@@ -18,9 +18,9 @@ description: Analyze shipping costs, compare carriers, optimize package dimensio
 
 1. Confirm the route.
 2. Define dimension profiles to test (or use user-provided ones).
-3. Check `carrier-parcel-templates-list` and `user-parcel-templates-list` for flat-rate and saved templates.
+3. Check `carrier-parcel-templates-list` and `user-parcel-templates-list` for flat-rate and saved templates. See `references/rate-shopping-guide.md` for dimensional weight and flat-rate guidance.
 4. Call `shipments-create` per profile on the same route.
-5. Compare: cheapest rate, carrier options, fastest option per profile. Note where flat-rate templates beat custom dimensions and where dimensional weight causes price jumps.
+5. Compare: cheapest rate, carrier options, fastest option per profile. Note where flat-rate templates beat custom dimensions and where dimensional weight causes price jumps. See `references/carrier-guide.md` for carrier-specific weight limits and surcharges.
 
 ---
 
