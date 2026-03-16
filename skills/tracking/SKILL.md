@@ -7,36 +7,24 @@ description: Track packages across carriers, view tracking history, and set up t
 
 ## Track by Number
 
-1. Determine carrier and tracking number. Carrier must be a lowercase Shippo token (e.g., `usps`, `ups`, `fedex`, `dhl_express`). Inference hints:
-   - USPS: 20-22 digits or starts with 9 + 20 digits
-   - UPS: starts with `1Z` + 16 alphanumeric
-   - FedEx: 12 or 15 digits
-   - DHL Express: 10 digits
-   - If uncertain, ask the user.
+1. Determine carrier and tracking number. Carrier must be a lowercase Shippo token (e.g., `usps`, `ups`, `fedex`, `dhl_express`). See `references/carrier-guide.md` for tracking number format hints per carrier. If uncertain, ask the user.
 2. Call `tracking-status-get` with `carrier` and `tracking_number`.
-   - In test mode, use `shippo` as the carrier, not the real carrier name.
+   - In test mode, use `shippo` as the carrier — see `references/test-mode.md` for details.
 3. Key response fields: `tracking_status` (status, status_details, status_date, location), `tracking_history`, `eta`.
 4. Each tracking event includes a `substatus` object with `code`, `text`, and `action_required` (boolean). Include substatus details when presenting tracking history -- these provide more specific information about what happened at each step.
 5. Present: current status, location, ETA, substatus details, and chronological event history (most recent first).
 
 ---
 
-## Test Mode Tracking Numbers
+## Test Mode
 
-When using a test API key (`shippo_test_*`), use `shippo` as the carrier and one of these mock tracking numbers:
-
-| Tracking Number | Simulated Status |
-|---|---|
-| `SHIPPO_PRE_TRANSIT` | Label created, not yet with carrier |
-| `SHIPPO_TRANSIT` | Package in transit |
-| `SHIPPO_DELIVERED` | Package delivered |
-| `SHIPPO_RETURNED` | Returned to sender |
-| `SHIPPO_FAILURE` | Delivery failed |
-| `SHIPPO_UNKNOWN` | No tracking info available |
+See `references/test-mode.md` for mock tracking numbers and test mode behavior. Key points: use `shippo` as the carrier token and one of the `SHIPPO_*` mock tracking numbers (e.g., `SHIPPO_TRANSIT`, `SHIPPO_DELIVERED`).
 
 ---
 
 ## Status Values
+
+See `references/carrier-guide.md` for carrier-specific status nuances. Standard values:
 
 | Status | Meaning |
 |---|---|
