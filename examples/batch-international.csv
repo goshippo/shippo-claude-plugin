@@ -1,0 +1,3 @@
+shipment_id,sender_name,sender_street1,sender_city,sender_state,sender_zip,sender_country,sender_email,sender_phone,recipient_name,recipient_street1,recipient_city,recipient_state,recipient_zip,recipient_country,package_length,package_width,package_height,package_weight,weight_unit,distance_unit,recipient_email,package_description,declared_value
+ORD-201,Acme Widgets Inc,731 Market St,San Francisco,CA,94103,US,shipping@acmewidgets.com,+1-415-555-0100,Emily Watson,456 Oak Ave,Portland,OR,97201,US,10,8,6,2.0,lb,in,emily@example.com,Ceramic mug set,35.00
+ORD-202,Acme Widgets Inc,731 Market St,San Francisco,CA,94103,US,shipping@acmewidgets.com,+1-415-555-0100,Pierre Dupont,22 Rue de Rivoli,Paris,,75004,FR,8,6,4,1.5,lb,in,pierre@example.fr,Cotton t-shirts,75.00

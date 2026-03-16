@@ -1,0 +1,60 @@
+[
+  {
+    "description": "Valid US residential address",
+    "name": "Sarah Johnson",
+    "street1": "350 Fifth Ave",
+    "street2": "Apt 12B",
+    "city": "New York",
+    "state": "NY",
+    "zip": "10118",
+    "country": "US",
+    "phone": "+1-212-555-0199",
+    "email": "sarah.johnson@example.com"
+  },
+  {
+    "description": "Valid US commercial address",
+    "name": "Acme Widgets Inc",
+    "street1": "731 Market St",
+    "street2": "Suite 200",
+    "city": "San Francisco",
+    "state": "CA",
+    "zip": "94103",
+    "country": "US",
+    "phone": "+1-415-555-0100",
+    "email": "shipping@acmewidgets.com",
+    "is_residential": false
+  },
+  {
+    "description": "Valid international address (United Kingdom)",
+    "name": "Oliver Hart",
+    "street1": "10 Downing Street",
+    "city": "London",
+    "state": "",
+    "zip": "SW1A 2AA",
+    "country": "GB",
+    "phone": "+44-20-7925-0918",
+    "email": "oliver.hart@example.co.uk"
+  },
+  {
+    "description": "Valid international address (Germany)",
+    "name": "Anna Muller",
+    "street1": "Friedrichstrasse 43-45",
+    "city": "Berlin",
+    "state": "",
+    "zip": "10117",
+    "country": "DE",
+    "phone": "+49-30-555-0123",
+    "email": "anna.muller@example.de"
+  },
+  {
+    "description": "Address with known issues (missing zip, misspelled street) - use for testing validation",
+    "name": "Test Recipient",
+    "street1": "123 Brodway",
+    "city": "New York",
+    "state": "NY",
+    "zip": "",
+    "country": "US",
+    "phone": "+1-212-555-0000",
+    "email": "test@example.com"
+  }
+]

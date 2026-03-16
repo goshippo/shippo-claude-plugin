@@ -34,6 +34,8 @@ claude --plugin-dir /path/to/shippo-claude-plugin
 
 Replace `/path/to/` with the actual path where you cloned the repo (e.g., `~/Desktop/shippo-claude-plugin`).
 
+> **Note:** Shippo provides managed carrier accounts for major carriers (USPS, UPS, FedEx, DHL) by default. You can get rates and buy labels immediately — no carrier setup needed.
+
 **5. Try it**
 
 Type `/shippo` followed by what you want to do:
@@ -69,12 +71,23 @@ This plugin bundles two things:
 
 The skill teaches Claude *how* to ship. The MCP server gives Claude the *tools* to ship. Together, they make Claude a shipping expert.
 
+> The MCP server is currently hosted by Speakeasy (Gram). The connection URL is configured in `.mcp.json`.
+
 ## Pricing
 
 - **This plugin**: Free and open source (MIT)
 - **Shippo account**: Free to sign up
 - **Test mode**: Free — create shipments, get rates, validate addresses at no cost
 - **Live labels**: Charged at [Shippo's discounted rates](https://goshippo.com/pricing) only when you purchase a label
+
+## Troubleshooting
+
+**Common issues:**
+
+- **"Invalid API key"** — Check that `SHIPPO_API_KEY` is set and includes the `ShippoToken ` prefix.
+- **"No rates returned"** — Most common cause is an unvalidated address. Validate both addresses first. Also check parcel dimensions are reasonable.
+- **"Carrier account not found"** — Shippo provides managed carrier accounts by default. You don't need to set up your own carrier credentials to get started.
+- **"Test vs live confusion"** — Test keys (`shippo_test_*`) are free and safe to experiment with. Live keys (`shippo_live_*`) create real labels that cost money.
 
 ## Repo Structure
 
@@ -158,6 +171,10 @@ The skill files in this repo follow the [Agent Skills](https://agentskills.io) s
 - [Claude Code Docs — Plugins](https://code.claude.com/docs/en/plugins)
 - [Official MCP Registry](https://registry.modelcontextprotocol.io)
 - [Agent Skills Standard](https://agentskills.io)
+
+## Privacy
+
+> This plugin transmits shipping data (addresses, parcel details, tracking numbers) to the Shippo API for processing. If you are handling customer data, ensure your use complies with your privacy obligations.
 
 ## License
 
