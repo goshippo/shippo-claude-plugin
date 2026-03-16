@@ -1,0 +1,23 @@
+{
+  "name": "shippo",
+  "description": "Ship packages with Shippo. Multi-carrier rate shopping, label generation, package tracking, address validation, customs declarations, and batch processing from CSV files.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Shippo",
+    "url": "https://goshippo.com"
+  },
+  "homepage": "https://docs.goshippo.com",
+  "repository": "https://github.com/goshippo/shippo-claude-plugin",
+  "license": "MIT",
+  "keywords": [
+    "shipping",
+    "labels",
+    "tracking",
+    "rates",
+    "shippo",
+    "logistics",
+    "customs",
+    "batch",
+    "address-validation"
+  ]
+}
