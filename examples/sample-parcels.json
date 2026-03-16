@@ -1,0 +1,35 @@
+[
+  {
+    "description": "Small envelope or packet (documents, small accessories)",
+    "length": "10",
+    "width": "7",
+    "height": "1",
+    "distance_unit": "in",
+    "weight": "0.5",
+    "mass_unit": "lb"
+  },
+  {
+    "description": "Medium box - shoebox size (shoes, books, electronics)",
+    "length": "14",
+    "width": "10",
+    "height": "5",
+    "distance_unit": "in",
+    "weight": "3",
+    "mass_unit": "lb"
+  },
+  {
+    "description": "Large heavy box (equipment, multiple items)",
+    "length": "24",
+    "width": "18",
+    "height": "14",
+    "distance_unit": "in",
+    "weight": "25",
+    "mass_unit": "lb"
+  },
+  {
+    "description": "USPS Flat Rate Medium Box (uses carrier template - no dimensions needed)",
+    "template": "USPS_MediumFlatRateBox",
+    "weight": "4",
+    "mass_unit": "lb"
+  }
+]

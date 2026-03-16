@@ -58,6 +58,8 @@ Call `customs-items-create` once per distinct item type in the shipment.
 
 HS (Harmonized System) codes classify goods for customs. They are typically 6 digits internationally, extended to 8-10 digits for country-specific tariff schedules (HTS in the US).
 
+**USPS requires 6-digit HS codes on ALL international commercial shipments (as of September 2025). FedEx and DHL strongly recommend them. Shipments without HS codes risk delays or rejection.**
+
 - If the user does not know the HS code, ask them to describe the product. Common codes:
   - Clothing: 6109 (t-shirts), 6110 (sweaters), 6204 (women's suits/trousers)
   - Electronics: 8471 (computers), 8517 (phones), 8528 (monitors)
@@ -93,7 +95,7 @@ Call `customs-declarations-create` with the item object_ids from step 1.
 | `license` | string | Export license number |
 | `certificate` | string | Certificate number |
 | `notes` | string | Additional notes |
-| `eel_pfc` | string | Electronic Export License or Post Office Filing Citation. Values: `NOEEI_30_37_a`, `NOEEI_30_37_h`, `NOEEI_30_36`, `AES_ITN`. **Strongly recommended for US-origin shipments** -- USPS will warn if absent. For shipments under $2,500, use `NOEEI_30_37_a`. For shipments over $2,500, an AES/ITN number is required. |
+| `eel_pfc` | string | Electronic Export License or Post Office Filing Citation. Values: `NOEEI_30_37_a`, `NOEEI_30_37_h`, `NOEEI_30_36`, `AES_ITN`. **Strongly recommended for US-origin shipments** -- USPS will warn if absent. For shipments to Canada, use `NOEEI_30_36` regardless of value. For non-Canada destinations: shipments under $2,500 use `NOEEI_30_37_a`; shipments over $2,500 require an AES/ITN number. |
 | `incoterm` | string | Incoterms trade term (e.g., `DDP`, `DDU`, `DAP`, `FCA`). Some carriers require this to return rates. |
 | `b13a_filing_option` | string | Canada B13A filing. Values: `FILED_ELECTRONICALLY`, `SUMMARY_REPORTING`, `NOT_REQUIRED` |
 | `metadata` | string | Free-form metadata |
@@ -105,8 +107,8 @@ Call `customs-declarations-create` with the item object_ids from step 1.
 | `MERCHANDISE` | Commercial goods being sold |
 | `GIFT` | Gifts with no commercial value |
 | `SAMPLE` | Product samples |
-| `RETURN` | Returned merchandise |
-| `HUMANITARIAN` | Humanitarian aid or donations |
+| `RETURN_MERCHANDISE` | Returned merchandise |
+| `HUMANITARIAN_DONATION` | Humanitarian aid or donations |
 | `DOCUMENTS` | Paper documents only |
 | `OTHER` | Anything else (must provide `contents_explanation`) |
 
@@ -135,6 +137,12 @@ If the user does not specify, ask them. `RETURN` is the safer default for valuab
   "eel_pfc": "NOEEI_30_37_a"
 }
 ```
+
+---
+
+### Commercial Invoice
+
+Shippo automatically generates 3 copies of the commercial invoice for international shipments. The invoice URL is returned in the transaction response after label purchase.
 
 ---
 
@@ -184,7 +192,36 @@ Most carriers require tariff_number for customs clearance. If omitted, the shipm
 Under-declaring item values is illegal and can result in fines or seizure. Ensure `value_amount` reflects the actual market value of the goods.
 
 ### EEL/PFC for US Exports
-For US-origin shipments with total declared value over $2,500, an AES/ITN filing is required. Set `eel_pfc` to the ITN number. For shipments under $2,500, use `NOEEI_30_37_a` (most common exemption).
+For shipments to Canada, use `NOEEI_30_36` regardless of value. For non-Canada destinations: shipments under $2,500 use `NOEEI_30_37_a` (most common exemption); shipments over $2,500 require an AES/ITN filing -- set `eel_pfc` to the ITN number.
 
 ### Restricted and Prohibited Items
 The Shippo API does not enforce import/export restrictions. The user is responsible for ensuring their goods are legal to ship to the destination country. If the user mentions shipping batteries, liquids, food, plants, or weapons, advise them to check destination country import regulations.
+
+---
+
+## Decision Trees
+
+### contents_type Selection
+
+Use this logic to determine `contents_type` when the user does not specify:
+
+1. Is the user selling the items? --> `MERCHANDISE`
+2. Is it a gift with no commercial value? --> `GIFT`
+3. Is it a product sample? --> `SAMPLE`
+4. Are the contents paper documents only? --> `DOCUMENTS`
+5. Is it a return/exchange of previously purchased goods? --> `RETURN_MERCHANDISE`
+6. Is it a charitable/humanitarian donation? --> `HUMANITARIAN_DONATION`
+7. None of the above? --> `OTHER` (must also provide `contents_explanation`)
+
+When in doubt, ask the user. `MERCHANDISE` is the most common value.
+
+### Incoterms Selection
+
+Incoterms define who pays duties and taxes. Use this logic:
+
+- **B2C e-commerce (default):** `DDU` (Delivered Duty Unpaid) -- the recipient pays duties/taxes on delivery. This is the standard default.
+- **Seller prepays duties/taxes:** `DDP` (Delivered Duty Paid) -- the sender pays all duties and taxes. Not supported by USPS (always DDU). Supported by UPS, FedEx, DHL.
+- **FedEx/DHL warehouse or third-party handoff:** `FCA` (Free Carrier) -- seller delivers to a named place (carrier facility). Used for B2B or drop-ship scenarios.
+- **DHL Express:** Also supports `DAP` (Delivered at Place), similar to DDU.
+
+If the user does not specify, use `DDU` for B2C shipments. If the user says they want to prepay duties for their customers, use `DDP`.
