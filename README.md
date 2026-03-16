@@ -1,19 +1,48 @@
 # Shippo Plugin for Claude Code
 
-A [Claude Code plugin](https://code.claude.com/docs/en/plugins) that adds shipping capabilities to Claude. It bundles a **skill** that teaches Claude shipping workflows and an **MCP server** that connects Claude to the [Shippo API](https://docs.goshippo.com) — so you can validate addresses, compare carrier rates, generate labels, track packages, handle customs, and process bulk shipments through natural conversation.
+A [Claude Code plugin](https://code.claude.com/docs/en/plugins) that gives Claude the ability to ship packages. Once installed, type **`/shippo`** and Claude can validate addresses, compare carrier rates, generate shipping labels, track packages, handle customs declarations, and process bulk shipments — all through natural conversation.
 
-## How It Works
+## Quick Start
 
-This plugin has two components:
+**1. Install Claude Code** (if you don't have it)
 
-- **Skill** (`skills/shippo/SKILL.md`) — Procedural knowledge that teaches Claude *how* to perform shipping tasks: the correct API call sequences, field requirements, error handling, and best practices for each workflow.
-- **MCP server** (`.mcp.json`) — Connects Claude to Shippo's API tools so it can *execute* those workflows — creating shipments, purchasing labels, tracking packages, etc.
+Download from [code.claude.com](https://code.claude.com).
 
-The skill and MCP server work together: the MCP server gives Claude access to Shippo's tools, and the skill teaches Claude how to use them effectively.
+**2. Clone this repo**
+
+```bash
+git clone https://github.com/goshippo/shippo-claude-plugin.git
+```
+
+**3. Set your Shippo API key**
+
+Get your key from the [Shippo dashboard](https://apps.goshippo.com/settings/api) (Settings > API), then run:
+
+```bash
+export SHIPPO_API_KEY="ShippoToken shippo_test_xxxxx"
+```
+
+Replace `shippo_test_xxxxx` with your actual key. Add this line to your `~/.zshrc` or `~/.bashrc` to persist it.
+
+Don't have a Shippo account? [Sign up free](https://apps.goshippo.com/join) — test mode costs nothing.
+
+**4. Launch Claude Code with the plugin**
+
+```bash
+claude --plugin-dir /path/to/shippo-claude-plugin
+```
+
+Replace `/path/to/` with the actual path where you cloned the repo (e.g., `~/Desktop/shippo-claude-plugin`).
+
+**5. Try it**
+
+Type `/shippo` followed by what you want to do:
+
+> `/shippo` compare rates for a 2lb package from San Francisco to New York
+
+Claude will connect to Shippo, fetch live rates across carriers, and present your options. You can also just ask Claude shipping questions directly — the `/shippo` command ensures Claude loads its full shipping expertise.
 
 ## What You Can Do
-
-Just ask Claude things like:
 
 - "Compare shipping rates for a 2lb package from San Francisco to New York"
 - "Validate this address: 350 Fifth Ave, New York, NY 10118"
@@ -21,8 +50,6 @@ Just ask Claude things like:
 - "Track package SHIPPO_TRANSIT"
 - "Process this CSV of shipments and generate labels for all of them"
 - "What's the cheapest way to ship a 5lb box to Chicago?"
-
-### Features
 
 | Capability | Description |
 |---|---|
@@ -33,58 +60,14 @@ Just ask Claude things like:
 | **Customs & International** | Automated customs declarations, HS code guidance, EEL/PFC handling |
 | **Batch Processing** | Process CSV files of shipments and generate labels in bulk |
 
-## Requirements
+## How It Works
 
-- [Claude Code](https://code.claude.com) (CLI)
-- A [Shippo account](https://apps.goshippo.com/join) (free to sign up)
-- A Shippo API key from your [Shippo dashboard](https://apps.goshippo.com/settings/api)
+This plugin bundles two things:
 
-## Installation
+- **A skill** (`/shippo`) — Teaches Claude the workflows, API sequences, and best practices for every shipping task. This is the procedural knowledge that makes Claude good at shipping.
+- **An MCP server connection** — Connects Claude to Shippo's hosted API so it can actually execute those workflows (create shipments, buy labels, track packages, etc.). There's no local server to run — the connection is configured automatically when you load the plugin.
 
-### Before the plugin is published
-
-While this plugin is pending approval in Anthropic's plugin directory, you can install it locally:
-
-**1. Clone the repo**
-
-```bash
-git clone https://github.com/goshippo/shippo-claude-plugin.git
-```
-
-**2. Set your Shippo API key**
-
-```bash
-export SHIPPO_API_KEY="ShippoToken shippo_test_xxxxx"
-```
-
-Add this to your `~/.zshrc` or `~/.bashrc` to persist across sessions.
-
-**3. Launch Claude Code with the plugin**
-
-```bash
-claude --plugin-dir ./shippo-claude-plugin
-```
-
-Or, to install the skill and MCP server separately without using the plugin wrapper:
-
-- **Skill only**: Copy `skills/shippo/` into your project's `.claude/skills/` directory
-- **MCP server only**: Run `claude mcp add --transport http shippo-mcp https://app.getgram.ai/mcp/shippo-mcp-beta -H "Mcp-Shippo-Merged-Api-Key-Header: ${SHIPPO_API_KEY}"`
-
-### After the plugin is published
-
-Once accepted into Anthropic's plugin directory, install with:
-
-```bash
-/plugin install goshippo/shippo-claude-plugin
-```
-
-**4. Verify it's working**
-
-Ask Claude:
-
-> "List my Shippo carrier accounts"
-
-If configured correctly, Claude will return your connected carriers.
+The skill teaches Claude *how* to ship. The MCP server gives Claude the *tools* to ship. Together, they make Claude a shipping expert.
 
 ## Pricing
 
@@ -99,7 +82,7 @@ If configured correctly, Claude will return your connected carriers.
 shippo-claude-plugin/
 ├── .claude-plugin/
 │   └── plugin.json        # Plugin manifest (name, version, metadata)
-├── .mcp.json               # MCP server configuration (Shippo API connection)
+├── .mcp.json               # MCP server connection (Shippo API — hosted, nothing to run)
 ├── skills/
 │   └── shippo/
 │       ├── SKILL.md        # Main skill — shipping workflow instructions
@@ -113,13 +96,23 @@ shippo-claude-plugin/
 
 ## Terminology
 
-| Term | What it means |
+| Term | What it means in this repo |
 |---|---|
-| **Plugin** | The distribution package — this entire repo. Bundles skills, MCP configs, and metadata for installation via Claude Code. |
-| **Skill** | A set of markdown instructions that teach Claude *how* to do something. Loaded on demand when relevant. Invokable with `/shippo`. |
-| **MCP Server** | A running service that gives Claude *access* to external tools. In this plugin, it connects Claude to the Shippo API. |
+| **Plugin** | This entire repo — the installable package. Bundles the skill and MCP server config together so one `--plugin-dir` flag sets up everything. |
+| **Skill** | The `/shippo` slash command. Markdown instructions that teach Claude how to perform shipping tasks. |
+| **MCP Server** | The hosted service that gives Claude access to Shippo's API tools. Configured in `.mcp.json`, runs remotely — nothing to install locally. |
 
-For more on these concepts, see Anthropic's docs on [plugins](https://code.claude.com/docs/en/plugins), [skills](https://code.claude.com/docs/en/skills), and [MCP](https://code.claude.com/docs/en/mcp).
+For more on these concepts, see Anthropic's docs on [plugins](https://code.claude.com/docs/en/plugins), [skills](https://code.claude.com/docs/en/skills), and [MCP servers](https://code.claude.com/docs/en/mcp).
+
+## Publishing to Anthropic
+
+This plugin is being submitted to [Anthropic's plugin directory](https://code.claude.com/docs/en/discover-plugins). Once approved, anyone will be able to install it with:
+
+```
+/plugin install goshippo/shippo-claude-plugin
+```
+
+Until then, use the `--plugin-dir` method in the Quick Start above.
 
 ## Links
 
@@ -127,7 +120,6 @@ For more on these concepts, see Anthropic's docs on [plugins](https://code.claud
 - [Shippo API Reference](https://docs.goshippo.com/docs/api_concepts/apiversioning/)
 - [MCP Server (npm)](https://www.npmjs.com/package/@shippo/shippo-mcp)
 - [Claude Code Docs — Plugins](https://code.claude.com/docs/en/plugins)
-- [Agent Skills Standard](https://agentskills.io)
 
 ## License
 
