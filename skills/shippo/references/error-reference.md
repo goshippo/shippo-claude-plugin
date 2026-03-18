@@ -132,6 +132,13 @@ Common Shippo API errors, their causes, and recovery steps.
 
 ---
 
+## General Rules
+
+- **Never guess** parcel dimensions, weight, customs values, HS codes, or signer names. Always ask the user.
+- **Do not auto-retry** transport, auth, or rate-limit errors. Report the error to the user and stop.
+
+---
+
 ## General Debugging Steps
 
 1. **Check the full error response.** Shippo error messages are usually descriptive. Read the `detail` or `messages` field.
