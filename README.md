@@ -94,8 +94,8 @@ The skills teach Claude *how* to ship. The MCP server gives Claude the *tools* t
 ```
 shippo-claude-plugin/
 ├── .claude-plugin/
-│   └── plugin.json        # Plugin manifest (name, version, metadata)
-├── .mcp.json               # MCP server connection (Shippo API — hosted, nothing to run)
+│   └── plugin.json          # Plugin manifest (name, version, metadata)
+├── .mcp.json                # MCP server connection (Shippo API — hosted, nothing to run)
 ├── skills/
 │   ├── address-validation/  # /shippo:address-validation
 │   ├── rate-shopping/       # /shippo:rate-shopping
@@ -105,6 +105,9 @@ shippo-claude-plugin/
 │   ├── shipping-analysis/   # /shippo:shipping-analysis
 │   └── shippo/
 │       └── references/      # Shared knowledge docs (carriers, customs, errors, etc.)
+├── examples/                # Sample CSV and JSON files for testing
+├── CHANGELOG.md
+├── CONTRIBUTING.md
 ├── LICENSE
 └── README.md
 ```
