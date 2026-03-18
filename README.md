@@ -117,52 +117,6 @@ shippo-claude-plugin/
 
 For more on these concepts, see Anthropic's docs on [plugins](https://code.claude.com/docs/en/plugins), [skills](https://code.claude.com/docs/en/skills), and [MCP servers](https://code.claude.com/docs/en/mcp).
 
-## Distribution Roadmap
-
-This plugin is being published across the major AI assistant ecosystems. The Shippo MCP server is already hosted and the Agent Skills files follow the open [agentskills.io](https://agentskills.io) standard, so the same core works across platforms with minimal per-channel packaging.
-
-### Tier 1 — In Progress
-
-| Platform | Status | What Ships | How Users Install |
-|---|---|---|---|
-| **Anthropic (Claude Code)** | Submitting | Plugin (skill + MCP) | `/plugin install shippo` from the Discover tab |
-| **Official MCP Registry** | Next | MCP server metadata | Auto-surfaces in GitHub MCP Registry, VS Code, and registry-aware clients |
-
-**Claude Code submission process:**
-1. Validate plugin structure with `claude plugin validate .`
-2. Submit via [claude.ai/settings/plugins/submit](https://claude.ai/settings/plugins/submit) or [platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit)
-3. Anthropic reviews for quality and security
-4. On approval, plugin appears in the [official marketplace](https://github.com/anthropics/claude-plugins-official) (`external_plugins/`)
-5. Users install with `/plugin install shippo@claude-plugins-official`
-
-**MCP Registry publishing process:**
-1. Install `mcp-publisher` (`brew install mcp-publisher`)
-2. Create `server.json` with namespace `io.github.goshippo/shippo-mcp`
-3. Authenticate via `mcp-publisher login github`
-4. Publish via `mcp-publisher publish`
-5. Server appears in the [MCP Registry API](https://registry.modelcontextprotocol.io) — no approval step, instant
-
-### Tier 2 — After Anthropic
-
-| Platform | Effort | Audience | Submission |
-|---|---|---|---|
-| **ChatGPT App Directory** | Medium — needs OAuth 2.1, tool annotations, test credentials | 200M+ users | [platform.openai.com/apps-manage](https://platform.openai.com/apps-manage) |
-| **Cursor Marketplace** | Low — same plugin format (skill + MCP) | Large (developers) | [cursor.com/marketplace/publish](https://cursor.com/marketplace/publish) |
-| **Cline MCP Marketplace** | Low — GitHub issue with logo + repo URL | Large (developers) | [github.com/cline/mcp-marketplace](https://github.com/cline/mcp-marketplace) |
-
-### Tier 3 — Good to Have
-
-| Platform | Notes |
-|---|---|
-| **Windsurf** | Curated MCP marketplace — no self-service, need to contact their team |
-| **JetBrains / Junie** | Standard plugin submission at [plugins.jetbrains.com](https://plugins.jetbrains.com) |
-| **Zed** | Requires Rust/WASM extension wrapper — more engineering effort |
-| **mcp.so / Glama.ai / Smithery.ai** | Third-party MCP directories for discovery — low effort to list |
-
-### Free Reach via Open Standards
-
-The skill files in this repo follow the [Agent Skills](https://agentskills.io) standard, which is supported by 30+ platforms including Claude Code, Codex CLI, Gemini CLI, Cursor, VS Code/Copilot, and JetBrains Junie. No additional packaging needed — these platforms can consume `SKILL.md` files directly.
-
 ## Links
 
 - [Shippo Documentation](https://docs.goshippo.com)
