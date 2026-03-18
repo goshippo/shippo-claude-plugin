@@ -1,6 +1,6 @@
 # Shippo Plugin for Claude Code
 
-A [Claude Code plugin](https://code.claude.com/docs/en/plugins) that gives Claude the ability to ship packages. Once installed, type **`/shippo`** and Claude can validate addresses, compare carrier rates, generate shipping labels, track packages, handle customs declarations, and process bulk shipments — all through natural conversation.
+A [Claude Code plugin](https://code.claude.com/docs/en/plugins) that gives Claude the ability to ship packages. Once installed, Claude can validate addresses, compare carrier rates, generate shipping labels, track packages, handle customs declarations, and process bulk shipments — all through natural conversation.
 
 ## Quick Start
 
@@ -38,11 +38,11 @@ Replace `/path/to/` with the actual path where you cloned the repo (e.g., `~/Des
 
 **5. Try it**
 
-Type `/shippo` followed by what you want to do:
+Just ask Claude what you need:
 
-> `/shippo` compare rates for a 2lb package from San Francisco to New York
+> Compare rates for a 2lb package from San Francisco to New York
 
-Claude will connect to Shippo, fetch live rates across carriers, and present your options. You can also just ask Claude shipping questions directly — the `/shippo` command ensures Claude loads its full shipping expertise.
+Claude will automatically use the right Shippo skill, connect to the API, and present your options. You can also invoke skills directly: `/shippo:rate-shopping`, `/shippo:label-purchase`, `/shippo:tracking`, etc.
 
 ## What You Can Do
 
@@ -66,10 +66,10 @@ Claude will connect to Shippo, fetch live rates across carriers, and present you
 
 This plugin bundles two things:
 
-- **A skill** (`/shippo`) — Teaches Claude the workflows, API sequences, and best practices for every shipping task. This is the procedural knowledge that makes Claude good at shipping.
+- **Skills** — Six task-specific skills that teach Claude the workflows, API sequences, and best practices for shipping: address validation, rate shopping, label purchase, tracking, batch processing, and shipping analysis. Claude automatically picks the right skill based on what you ask.
 - **An MCP server connection** — Connects Claude to Shippo's hosted API so it can actually execute those workflows (create shipments, buy labels, track packages, etc.). There's no local server to run — the connection is configured automatically when you load the plugin.
 
-The skill teaches Claude *how* to ship. The MCP server gives Claude the *tools* to ship. Together, they make Claude a shipping expert.
+The skills teach Claude *how* to ship. The MCP server gives Claude the *tools* to ship. Together, they make Claude a shipping expert.
 
 > The MCP server is currently hosted by Speakeasy (Gram). The connection URL is configured in `.mcp.json`.
 
@@ -97,12 +97,14 @@ shippo-claude-plugin/
 │   └── plugin.json        # Plugin manifest (name, version, metadata)
 ├── .mcp.json               # MCP server connection (Shippo API — hosted, nothing to run)
 ├── skills/
+│   ├── address-validation/  # /shippo:address-validation
+│   ├── rate-shopping/       # /shippo:rate-shopping
+│   ├── label-purchase/      # /shippo:label-purchase
+│   ├── tracking/            # /shippo:tracking
+│   ├── batch-shipping/      # /shippo:batch-shipping
+│   ├── shipping-analysis/   # /shippo:shipping-analysis
 │   └── shippo/
-│       ├── SKILL.md        # Main skill — shipping workflow instructions
-│       └── references/
-│           ├── csv-format.md      # CSV column spec for batch processing
-│           ├── customs-guide.md   # International customs declaration guide
-│           └── tool-reference.md  # Complete MCP tool catalog
+│       └── references/      # Shared knowledge docs (carriers, customs, errors, etc.)
 ├── LICENSE
 └── README.md
 ```
@@ -111,8 +113,8 @@ shippo-claude-plugin/
 
 | Term | What it means in this repo |
 |---|---|
-| **Plugin** | This entire repo — the installable package. Bundles the skill and MCP server config together so one `--plugin-dir` flag sets up everything. |
-| **Skill** | The `/shippo` slash command. Markdown instructions that teach Claude how to perform shipping tasks. |
+| **Plugin** | This entire repo — the installable package. Bundles skills and MCP server config together so one `--plugin-dir` flag sets up everything. |
+| **Skills** | Six task-specific skills (`/shippo:rate-shopping`, `/shippo:label-purchase`, etc.). Markdown instructions that teach Claude how to perform shipping tasks. Claude picks the right one automatically. |
 | **MCP Server** | The hosted service that gives Claude access to Shippo's API tools. Configured in `.mcp.json`, runs remotely — nothing to install locally. |
 
 For more on these concepts, see Anthropic's docs on [plugins](https://code.claude.com/docs/en/plugins), [skills](https://code.claude.com/docs/en/skills), and [MCP servers](https://code.claude.com/docs/en/mcp).
