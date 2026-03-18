@@ -1,9 +1,11 @@
 {
-  "shippo-mcp": {
-    "type": "http",
-    "url": "https://app.getgram.ai/mcp/shippo-mcp-beta",
-    "headers": {
-      "Mcp-Shippo-Merged-Api-Key-Header": "${SHIPPO_API_KEY}"
+  "mcpServers": {
+    "shippo-mcp": {
+      "type": "http",
+      "url": "https://app.getgram.ai/mcp/shippo-mcp-beta",
+      "headers": {
+        "Mcp-Shippo-Merged-Api-Key-Header": "${SHIPPO_API_KEY}"
+      }
     }
   }
 }
