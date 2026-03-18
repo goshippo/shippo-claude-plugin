@@ -38,9 +38,7 @@ claude --plugin-dir ./shippo-claude-plugin
 
 Inside the session, try:
 
-- `/shippo` -- triggers the router skill, which delegates to the correct sub-skill
-- `/address-validation` -- test address workflows directly
-- `/rate-shopping`, `/label-purchase`, `/tracking`, `/batch-shipping`, `/shipping-analysis`
+- `/shippo:address-validation`, `/shippo:rate-shopping`, `/shippo:label-purchase`, `/shippo:tracking`, `/shippo:batch-shipping`, `/shippo:shipping-analysis`
 
 Before submitting, validate the plugin structure:
 
@@ -56,9 +54,6 @@ shippo-claude-plugin/
     plugin.json           # Plugin manifest (name, version, metadata)
   .mcp.json               # MCP server connection config
   skills/
-    shippo/               # Router skill -- delegates to sub-skills
-      SKILL.md
-      references/         # Domain knowledge files (10 reference docs)
     address-validation/
       SKILL.md
     rate-shopping/
@@ -71,6 +66,8 @@ shippo-claude-plugin/
       SKILL.md
     shipping-analysis/
       SKILL.md
+    shippo/
+      references/         # Shared knowledge docs (10 reference files)
   examples/               # Sample input files (CSV, JSON)
   README.md
 ```
@@ -79,7 +76,7 @@ shippo-claude-plugin/
 
 - **`.claude-plugin/plugin.json`** -- Plugin manifest. Defines name, version, author, and keywords.
 - **`.mcp.json`** -- Connects Claude Code to the Shippo MCP server (hosted via Speakeasy/Gram).
-- **`skills/`** -- Each subdirectory is a skill. The router (`skills/shippo/`) dispatches to task-specific sub-skills.
+- **`skills/`** -- Each subdirectory is a skill. Claude auto-routes to the correct one based on context.
 - **`skills/shippo/references/`** -- Domain knowledge files. Skills reference these for carrier details, field formats, error codes, etc.
 - **`examples/`** -- Sample CSV and JSON files users can reference for batch and address workflows.
 
@@ -103,9 +100,7 @@ shippo-claude-plugin/
 
 3. Write the skill body. Keep it **workflow-focused** -- step-by-step instructions for Claude, not domain knowledge dumps. Reference files in `references/` for domain details.
 
-4. Add a routing entry to `skills/shippo/SKILL.md` so the router knows when to delegate to your skill.
-
-5. Validate:
+4. Validate:
 
    ```bash
    claude plugin validate .
@@ -157,7 +152,6 @@ shippo-claude-plugin/
 
 - [ ] `claude plugin validate .` passes
 - [ ] New skills have frontmatter (`name`, `description`)
-- [ ] Router updated if a new skill was added
 - [ ] Tested locally with `--plugin-dir`
 - [ ] No API keys or secrets committed
 
