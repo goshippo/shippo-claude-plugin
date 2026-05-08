@@ -146,3 +146,32 @@ Common Shippo API errors, their causes, and recovery steps.
 3. **Check object status.** For async operations, always poll until the final status before proceeding.
 4. **Verify API key mode.** Test vs live mode is the most common source of "not found" errors.
 5. **Check carrier account.** Ensure the carrier is configured and enabled for the desired route.
+
+---
+
+## Non-envelope MCP-protocol errors
+
+Some failures bypass the Speakeasy [response envelope](response-envelope.md) entirely and surface as MCP-protocol-level errors instead. Two flavors:
+
+### Tool-result errors (`isError: true`)
+
+The MCP tool response has `isError: true` with a single text block containing a plaintext message:
+
+```
+Unexpected API response status or content-type:
+Status 404 Content-Type application/json Body: {"detail":"Not found."}
+```
+
+These typically indicate the upstream Shippo API returned an unexpected shape (e.g. a 404 on a tracking lookup the SDK didn't anticipate). Report the plaintext body to the user verbatim — it carries the actual error detail.
+
+### Argument-validation errors (JSON-RPC `-32602`)
+
+Pre-call validation failures (missing required field, type mismatch) return JSON-RPC error code `-32602` ("Invalid params") with a `message` field describing the failure. These are MCP-client-side; correct the arguments and retry.
+
+### Handling both paths
+
+When reporting errors:
+
+1. Check for `isError: true` on the tool result first.
+2. If absent, check `StatusCode` inside the envelope.
+3. If JSON-RPC `-32602` is returned, the call never reached Shippo — it's an arg-shape problem, not an API problem.
