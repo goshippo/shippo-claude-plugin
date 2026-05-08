@@ -412,6 +412,22 @@ The audit identified two definite deltas the plugin is missing:
 
 Both are transport-agnostic and apply to both channels. Task 2.1 lands them. Tasks 2.2–2.7 audit each workflow and reconcile any further drift.
 
+### Phase 2 audit results (2026-05-08, four parallel Explore agents)
+
+| Workflow | Verdict | Action taken |
+|---|---|---|
+| 2.1 Response envelope + non-envelope errors | drift confirmed | Added `skills/shippo/references/response-envelope.md`; appended "Non-envelope MCP-protocol errors" section to `error-reference.md`. Commit `0777bc0`. |
+| 2.2 Address Validation | match (plugin is superset — adds Re-validate, Duplicate Addresses, Quick Reference subsections) | No edit. |
+| 2.3 Rate Shopping | match (plugin's `rate-shopping-guide.md` is more detailed on Dimensional Weight worked example and Flat Rate decision tree than clawhub's brief table; this is appropriate structural difference, not drift) | No edit. |
+| 2.4 Label Purchase | match (plugin's `label-formats.md` extends clawhub's brief table with batch `label_filetype` field-name note + S3 URL truncation warning, both already in workflow skills) | No edit. |
+| 2.5 Tracking | match | No edit. |
+| 2.6 Batch Shipping | match | No edit. |
+| 2.7 Shipping Analysis | match | No edit. |
+| 2.8 Error Handling | "drift" reported (parcel-string rule + S3-URL rule missing from `error-reference.md` General Rules) — but verified both already exist in workflow skills (`rate-shopping/SKILL.md:10`, `batch-shipping/SKILL.md`, `label-purchase/SKILL.md`). Centralizing would duplicate. | No edit — plugin's per-workflow rule placement is preferred over error-reference centralization. |
+| 2.8 Security & Data Transparency | intentionally divergent — different transports, different stories | Skipped per plan. |
+
+**Net Phase 2 actions:** one commit (`0777bc0` for Task 2.1). Tasks 2.2–2.8 had no drift requiring plugin edits — the plugin is a content superset with appropriate structural differences for its 6-skill + 10-reference layout vs. the consolidated single-SKILL.md ClawHub view.
+
 ### Task 2.1: Add response-envelope reference and non-envelope-error guidance to plugin
 
 **Files:**
