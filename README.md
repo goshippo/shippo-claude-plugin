@@ -1,3 +1,8 @@
+> [!WARNING]
+> **Deprecated. No longer maintained.**
+>
+> Shippo's AI integrations (Claude Code plugin, ClawHub skill, and more) are now consolidated in one repository, `goshippo/ai`. The setup described below points at a retired endpoint. For the current hosted Shippo MCP (per-user OAuth, no API key to copy), see the [Shippo MCP documentation](https://docs.goshippo.com/docs/Guides_general/MCPServer).
+
 # Shippo Plugin for Claude Code
 
 A [Claude Code plugin](https://code.claude.com/docs/en/plugins) that gives Claude the ability to ship packages. Once installed, Claude can validate addresses, compare carrier rates, generate shipping labels, track packages, handle customs declarations, and process bulk shipments — all through natural conversation.
