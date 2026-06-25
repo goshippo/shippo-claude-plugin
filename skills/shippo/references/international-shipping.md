@@ -1,3 +1,9 @@
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/shippo/references/international-shipping.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
+
 # International Shipping Guide
 
 Country-specific requirements, duty/tax considerations, and international shipping best practices.

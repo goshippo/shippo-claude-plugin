@@ -2,20 +2,24 @@
 name: label-purchase
 description: Purchase domestic and international shipping labels, handle customs declarations, return labels, and void/refund labels via the Shippo API
 ---
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/label-purchase/SKILL.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
+
 
 # Label Purchase
 
-## Test vs Live Mode
+## Purchases Are Live
 
-At the start of any label purchase workflow, check the API key prefix:
-- **Test keys** (`shippo_test_*`): Labels are free. No charges are incurred. Use for testing workflows.
-- **Live keys** (`shippo_live_*`): Labels incur real charges. Inform the user which mode they are in before proceeding.
+Label purchases charge the authorized Shippo account for real. **Before purchasing, explicitly state "this will charge your Shippo account" with the carrier, service, and cost, and require the user to acknowledge.** Do not purchase without that confirmation.
 
 ---
 
 ## Purchase Confirmation Gate
 
-Before every call to `transactions-create`, summarize the following and ask the user for explicit confirmation:
+Before every call to `CreateTransaction`, summarize the following and ask the user for explicit confirmation:
 - Carrier and service level
 - Estimated cost
 - Estimated delivery time
@@ -27,26 +31,26 @@ Before every call to `transactions-create`, summarize the following and ask the 
 
 ## Domestic Label
 
-1. Optionally validate both addresses with `addresses-validate-v2` (see `address-validation` skill).
-2. Call `shipments-create` with `address_from`, `address_to` (as inline address objects using v1 field names -- `street1`, `city`, `state`, `zip`, `country`), `parcels`, and `async: false`.
+1. Optionally validate both addresses with `ValidateAddress` (see Address Validation).
+2. Call `CreateShipment` with `address_from`, `address_to` (as inline address objects using v1 field names -- `street1`, `city`, `state`, `zip`, `country`), `parcels`, and `async: false`.
 3. Present rates to the user. Let them choose.
 4. **Confirm purchase** (see Purchase Confirmation Gate above).
-5. Call `transactions-create` with: `rate` (selected rate object_id), `label_file_type` (default `PDF_4x6`), `async: false`.
+5. Call `CreateTransaction` with: `rate` (selected rate object_id), `label_file_type` (default `PDF_4x6`), `async: false`.
 6. Check response `status`:
    - `SUCCESS`: return `tracking_number`, `label_url` (display the COMPLETE URL -- S3 signed URLs break if truncated), and `tracking_url_provider`.
-   - `QUEUED`/`WAITING`: poll `transactions-get` until resolved.
+   - `QUEUED`/`WAITING`: poll `GetTransaction` until resolved.
    - `ERROR`: report messages from the `messages` array.
 
 ---
 
 ## International Label
 
-All domestic steps apply, plus customs handling before shipment creation. See `references/customs-guide.md` for the full customs workflow.
+All domestic steps apply, plus customs handling before shipment creation. See `shippo/references/customs-guide.md` for the full customs workflow.
 
-1. Optionally validate addresses with `addresses-validate-v2`. Sender must include `email` and `phone`. Ask if missing.
-2. Create customs items: call `customs-items-create` per item (description, quantity, net_weight, mass_unit, value_amount, value_currency, origin_country, tariff_number). Alternatively, you can skip this step and pass inline item objects directly in the declaration (step 3).
-3. Create the customs declaration: call `customs-declarations-create` with contents_type, non_delivery_option, certify: true, certify_signer, and the items (either object_ids from step 2, or inline item objects). See `references/customs-guide.md` for field details.
-4. Call `shipments-create` with all standard fields plus `customs_declaration` (the declaration object_id).
+1. Optionally validate addresses with `ValidateAddress`. Sender must include `email` and `phone`. Ask if missing.
+2. Create customs items: call `CreateCustomsItem` per item (description, quantity, net_weight, mass_unit, value_amount, value_currency, origin_country, tariff_number). Alternatively, you can skip this step and pass inline item objects directly in the declaration (step 3).
+3. Create the customs declaration: call `CreateCustomsDeclaration` with contents_type, non_delivery_option, certify: true, certify_signer, and the items (either object_ids from step 2, or inline item objects). See `shippo/references/customs-guide.md` for field details.
+4. Call `CreateShipment` with all standard fields plus `customs_declaration` (the declaration object_id).
 5. Present rates, **confirm purchase** (see Purchase Confirmation Gate), then purchase label and return results as in the domestic flow.
 
 ### Contents Type Decision Tree
@@ -89,7 +93,7 @@ Default to `PDF_4x6` unless the user specifies otherwise. Supported formats: `PD
 
 ## Label Customization Options
 
-When purchasing a label via `transactions-create`, the following options may be set on the shipment or rate:
+When purchasing a label via `CreateTransaction`, the following options may be set on the shipment or rate:
 
 - **Signature confirmation**: set `signature_confirmation` on the shipment's `extra` field. Values: `STANDARD`, `ADULT`, `CERTIFIED`, `INDIRECT`, `CARRIER_CONFIRMATION`.
 - **Insurance**: set `insurance` on the shipment's `extra` field with `amount`, `currency`, and `provider`.
@@ -100,31 +104,31 @@ When purchasing a label via `transactions-create`, the following options may be 
 
 ## Label from Existing Rate
 
-If the user already has a rate object_id: optionally call `rates-get` to confirm details, then **confirm purchase** (see Purchase Confirmation Gate), then call `transactions-create` directly.
+If the user already has a rate object_id: optionally call `GetRate` to confirm details, then **confirm purchase** (see Purchase Confirmation Gate), then call `CreateTransaction` directly.
 
 ---
 
 ## Voiding a Label
 
-Call `refunds-create` with the transaction object_id.
+Call `CreateRefund` with the transaction object_id.
 
-**Refund limitations:** Void/refund eligibility depends on carrier and timing. Not all labels can be refunded after purchase. If `refunds-create` fails, advise the user to contact Shippo support.
+**Refund limitations:** Void/refund eligibility depends on carrier and timing. Not all labels can be refunded after purchase. If `CreateRefund` fails, advise the user to contact Shippo support.
 
 ---
 
 ## Quick Reference
 
 **Domestic label:**
-(optional) `addresses-validate-v2` (x2) -> `shipments-create` (with inline addresses) -> user picks rate -> confirm -> `transactions-create`
+(optional) `ValidateAddress` (x2) -> `CreateShipment` (with inline addresses) -> user picks rate -> confirm -> `CreateTransaction`
 
 **International label:**
-(optional) `addresses-validate-v2` (x2) -> `customs-items-create` (per item) -> `customs-declarations-create` -> `shipments-create` (with inline addresses + customs_declaration) -> user picks rate -> confirm -> `transactions-create`
+(optional) `ValidateAddress` (x2) -> `CreateCustomsItem` (per item) -> `CreateCustomsDeclaration` -> `CreateShipment` (with inline addresses + customs_declaration) -> user picks rate -> confirm -> `CreateTransaction`
 
 **Return label:**
 Same as domestic/international, but swap `address_from` and `address_to`.
 
 **Order-to-label:**
-`orders-create` -> `shipments-create` (using order address/item data) -> user picks rate -> confirm -> `transactions-create` -> `orders-get-packing-slip`
+`CreateOrder` -> `CreateShipment` (using order address/item data) -> user picks rate -> confirm -> `CreateTransaction` -> packing slip (REST fallback, see below)
 
 ---
 
@@ -134,13 +138,13 @@ Use orders to represent e-commerce fulfillment requests. An order captures the s
 
 ### Tools
 
-- **`orders-create`**: Create an order with line items, shipping address, and order details.
-- **`orders-get`**: Retrieve an order by its object_id.
-- **`orders-list`**: List all orders.
-- **`orders-get-packing-slip`**: Generate a packing slip PDF for an order.
+- **`CreateOrder`**: Create an order with line items, shipping address, and order details.
+- **`GetOrder`**: Retrieve an order by its object_id.
+- **`ListOrders`**: List all orders.
+- **Packing slip (known gap):** Generate a packing slip PDF for an order. There is no packing-slip tool in the MCP catalog. The underlying REST endpoint exists at `GET /orders/{ORDER_ID}/packingslip/` (returns a 24-hour S3 PDF link). Fall back to a direct REST call, or advise the user to use the Shippo dashboard until the MCP gap is closed.
 
 ### Workflow
 
-1. Call `orders-create` with the shipping address, line items (title, quantity, sku, total_price, etc.), and order-level fields.
-2. Use the order's address and item data to call `shipments-create`, then follow the standard label purchase flow (rate selection, confirmation, `transactions-create`).
-3. After purchasing the label, call `orders-get-packing-slip` to generate a PDF packing slip for the order.
+1. Call `CreateOrder` with the shipping address, line items (title, quantity, sku, total_price, etc.), and order-level fields.
+2. Use the order's address and item data to call `CreateShipment`, then follow the standard label purchase flow (rate selection, confirmation, `CreateTransaction`).
+3. After purchasing the label, generate a packing slip via the REST fallback (see Tools above for the known MCP gap).

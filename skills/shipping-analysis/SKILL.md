@@ -2,14 +2,20 @@
 name: shipping-analysis
 description: Analyze shipping costs, compare carriers, optimize package dimensions, and review historical shipping spend via the Shippo API
 ---
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/shipping-analysis/SKILL.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
+
 
 # Shipping Analysis and Optimization
 
 ## Geographic Cost Analysis
 
 1. Confirm origin address, destination list (or use representative cities), and parcel details.
-2. Call `carrier-accounts-list` to see configured carriers.
-3. Call `shipments-create` per destination to collect rates. Creating shipments is free; only `transactions-create` costs money.
+2. Call `ListCarrierAccounts` to see configured carriers.
+3. Call `CreateShipment` per destination to collect rates. Creating shipments is free; only `CreateTransaction` costs money.
 4. Write results to `analysis/` directory (markdown report + CSV). Columns: Route, Destination, Carrier, Service, Cost, Currency, EstimatedDays, Zone.
 
 ---
@@ -18,15 +24,15 @@ description: Analyze shipping costs, compare carriers, optimize package dimensio
 
 1. Confirm the route.
 2. Define dimension profiles to test (or use user-provided ones).
-3. Check `carrier-parcel-templates-list` and `user-parcel-templates-list` for flat-rate and saved templates. See `references/rate-shopping-guide.md` for dimensional weight and flat-rate guidance.
-4. Call `shipments-create` per profile on the same route.
-5. Compare: cheapest rate, carrier options, fastest option per profile. Note where flat-rate templates beat custom dimensions and where dimensional weight causes price jumps. See `references/carrier-guide.md` for carrier-specific weight limits and surcharges.
+3. Check `ListCarrierParcelTemplates` and `ListUserParcelTemplates` for flat-rate and saved templates. See `shippo/references/rate-shopping-guide.md` for dimensional weight and flat-rate guidance.
+4. Call `CreateShipment` per profile on the same route.
+5. Compare: cheapest rate, carrier options, fastest option per profile. Note where flat-rate templates beat custom dimensions and where dimensional weight causes price jumps. See `shippo/references/carrier-guide.md` for carrier-specific weight limits and surcharges.
 
 ---
 
 ## Carrier Comparison
 
-1. Call `shipments-create` for the route.
+1. Call `CreateShipment` for the route.
 2. Group the `rates` array by `provider`.
 3. Per carrier: cheapest service, fastest service, number of service levels, price range.
 
@@ -34,10 +40,10 @@ description: Analyze shipping costs, compare carriers, optimize package dimensio
 
 ## Historical Cost Optimization
 
-1. Call `shipments-list` and `transactions-list` to get past activity.
+1. Call `ListShipments` and `ListTransactions` to get past activity.
 2. Cross-reference: what the user paid vs. what alternatives were available.
 3. Identify patterns: carrier concentration, service-level mismatch, consistent overpayment.
-4. For a sample of shipments with tracking numbers, call `tracking-status-get` to check actual vs. estimated delivery times.
+4. For a sample of shipments with tracking numbers, call `GetTrack` to check actual vs. estimated delivery times.
 5. If fewer than 5 successful transactions exist (not just shipments -- shipments are rate quotes, transactions represent actual spend), redirect to forward-looking analysis.
 
 ---
@@ -51,10 +57,10 @@ Write reports to the `analysis/` directory. Create it if it does not exist. Incl
 ## Quick Reference
 
 **Cost analysis:**
-`carrier-accounts-list` -> `shipments-create` (per destination) -> read `rates` arrays -> write report
+`ListCarrierAccounts` -> `CreateShipment` (per destination) -> read `rates` arrays -> write report
 
 **Carrier comparison:**
-`shipments-create` -> group `rates` by `provider` -> summarize
+`CreateShipment` -> group `rates` by `provider` -> summarize
 
 **Historical review:**
-`shipments-list` + `transactions-list` -> cross-reference -> `tracking-status-get` (sample) -> write report
+`ListShipments` + `ListTransactions` -> cross-reference -> `GetTrack` (sample) -> write report

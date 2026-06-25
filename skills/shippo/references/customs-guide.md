@@ -1,3 +1,9 @@
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/shippo/references/customs-guide.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
+
 # Customs Declaration Guide
 
 This document covers creating customs declarations for international shipments. A customs declaration is required whenever sender and recipient are in different countries.
@@ -16,7 +22,7 @@ International labels require customs documentation before the shipment can be cr
 
 ## Step 1: Create Customs Items
 
-Call `customs-items-create` once per distinct item type in the shipment.
+Call `CreateCustomsItem` once per distinct item type in the shipment.
 
 ### Required Fields
 
@@ -72,7 +78,7 @@ HS (Harmonized System) codes classify goods for customs. They are typically 6 di
 
 ## Step 2: Create the Customs Declaration
 
-Call `customs-declarations-create` with the item object_ids from step 1.
+Call `CreateCustomsDeclaration` with the item object_ids from step 1.
 
 ### Required Fields
 
@@ -148,7 +154,7 @@ Shippo automatically generates 3 copies of the commercial invoice for internatio
 
 ## Step 3: Attach to Shipment
 
-When calling `shipments-create`, include the `customs_declaration` field set to the object_id returned from step 2:
+When calling `CreateShipment`, include the `customs_declaration` field set to the object_id returned from step 2:
 
 ```json
 {

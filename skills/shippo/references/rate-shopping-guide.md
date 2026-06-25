@@ -1,3 +1,9 @@
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/shippo/references/rate-shopping-guide.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
+
 # Rate Shopping Guide
 
 How to compare shipping rates effectively, understand pricing factors, and present options to users.
@@ -6,10 +12,10 @@ How to compare shipping rates effectively, understand pricing factors, and prese
 
 ## Basic Flow
 
-1. **Create a shipment** with `shipments-create` (addresses + parcels).
-2. **Retrieve rates** from the shipment response (or poll via `shipments-get` if async).
+1. **Create a shipment** with `CreateShipment` (addresses + parcels).
+2. **Retrieve rates** from the shipment response (or poll via `GetShipment` if async).
 3. **Compare rates** by price, transit time, and carrier.
-4. **Purchase the selected rate** with `transactions-create`.
+4. **Purchase the selected rate** with `CreateTransaction`.
 
 ---
 
@@ -84,9 +90,9 @@ When a user has multiple carrier accounts for the same carrier (e.g., their own 
 
 ## Currency-Specific Rates
 
-Use `rates-list-by-currency-code` to get rates in a specific currency:
+Use `ListShipmentRatesByCurrencyCode` to get rates in a specific currency:
 ```
-rates-list-by-currency-code shipment_id="..." currency_code="EUR"
+list_shipment_rates_by_currency shipment_id="..." currency_code="EUR"
 ```
 
 This is useful for international sellers who need to see rates in their local currency. Shippo converts rates automatically.
@@ -121,5 +127,5 @@ Sort by price ascending unless the user requests sorting by speed.
 - **Validate addresses first.** Invalid addresses can cause rate lookup failures or missing rates.
 - **Use accurate dimensions.** Overestimating dimensions inflates dimensional weight and prices.
 - **Check flat-rate options.** For heavy or long-distance USPS shipments, flat rate is often cheapest.
-- **Filter by carrier_accounts** in `shipments-create` to speed up rate retrieval if only certain carriers are needed.
+- **Filter by carrier_accounts** in `CreateShipment` to speed up rate retrieval if only certain carriers are needed.
 - **Consider all carriers.** The cheapest option varies by lane, weight, and dimensions. Do not default to one carrier without comparing.

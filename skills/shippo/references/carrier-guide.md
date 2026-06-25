@@ -1,3 +1,9 @@
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/shippo/references/carrier-guide.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
+
 # Carrier Guide
 
 Per-carrier nuances, requirements, and gotchas for the major carriers supported by Shippo.

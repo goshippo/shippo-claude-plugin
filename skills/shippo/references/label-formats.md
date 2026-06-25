@@ -1,3 +1,9 @@
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/shippo/references/label-formats.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
+
 # Label Formats
 
 Supported label file types, when to use each, and label URL handling.

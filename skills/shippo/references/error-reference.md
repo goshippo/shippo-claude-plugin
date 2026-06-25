@@ -1,3 +1,9 @@
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/shippo/references/error-reference.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
+
 # Error Reference
 
 Common Shippo API errors, their causes, and recovery steps.
@@ -9,7 +15,7 @@ Common Shippo API errors, their causes, and recovery steps.
 ### Invalid street address
 - **Pattern:** `"Street address is invalid"` or validation result `is_valid: false`
 - **Cause:** Street name/number not found in carrier database, typo, or nonexistent address.
-- **Recovery:** Ask the user to double-check the street address. Try `addresses-parse` if they have a freeform string. Check for common issues: missing directional prefix (N, S, E, W), missing street suffix (St, Ave, Blvd), or transposed numbers.
+- **Recovery:** Ask the user to double-check the street address. Try `ParseAddress` if they have a freeform string. Check for common issues: missing directional prefix (N, S, E, W), missing street suffix (St, Ave, Blvd), or transposed numbers.
 
 ### Missing or invalid postal code
 - **Pattern:** `"Invalid ZIP/postal code"` or `"ZIP code does not match state"`
@@ -31,14 +37,14 @@ Common Shippo API errors, their causes, and recovery steps.
 ## No Rates Returned
 
 ### Address not validated
-- **Pattern:** `shipments-create` returns empty `rates` array
+- **Pattern:** `CreateShipment` returns empty `rates` array
 - **Cause:** One or both addresses failed validation. Carriers will not return rates for unverifiable addresses.
-- **Recovery:** Validate both `address_from` and `address_to` using `addresses-create-v2` before creating the shipment. Check validation messages.
+- **Recovery:** Validate both `address_from` and `address_to` using `CreateAddress` before creating the shipment. Check validation messages.
 
 ### Unsupported route
 - **Pattern:** Empty rates or `"No rates available for this lane"`
 - **Cause:** The carrier does not service the origin-destination pair (e.g., USPS does not ship between two non-US countries).
-- **Recovery:** Try different carriers. Check `carrier-accounts-list` to see which carriers are configured. For international routes, DHL Express often has the broadest coverage.
+- **Recovery:** Try different carriers. Check `ListCarrierAccounts` to see which carriers are configured. For international routes, DHL Express often has the broadest coverage.
 
 ### Parcel too large or too heavy
 - **Pattern:** `"Package exceeds maximum dimensions"` or `"Package exceeds maximum weight"`
@@ -62,7 +68,7 @@ Common Shippo API errors, their causes, and recovery steps.
 ### Address mismatch
 - **Pattern:** `"Address validation failed"` at purchase time
 - **Cause:** The carrier revalidates addresses at purchase time and found a discrepancy.
-- **Recovery:** Validate addresses again using `addresses-create-v2`, fix any issues, create a new shipment.
+- **Recovery:** Validate addresses again using `CreateAddress`, fix any issues, create a new shipment.
 
 ### Missing customs declaration for international
 - **Pattern:** `"Customs declaration required"` or `"International shipments require customs information"`
@@ -81,7 +87,7 @@ Common Shippo API errors, their causes, and recovery steps.
 ### Invalid address in batch
 - **Pattern:** Batch status `INVALID` with per-shipment errors showing address issues
 - **Cause:** One or more shipments in the batch have invalid addresses.
-- **Recovery:** Call `batches-get` to identify which shipments failed. Fix the addresses and either update the batch or create a new one with corrected data.
+- **Recovery:** Call `GetBatch` to identify which shipments failed. Fix the addresses and either update the batch or create a new one with corrected data.
 
 ### Missing required fields
 - **Pattern:** `"Missing required field"` on batch creation
@@ -121,14 +127,14 @@ Common Shippo API errors, their causes, and recovery steps.
 - **Recovery:** The MCP server handles retries automatically. If the user is processing a large batch, this is expected. Wait and retry.
 
 ### Authentication failure
-- **Pattern:** HTTP 401 or `"Invalid API token"`
-- **Cause:** The API key is invalid, expired, or not set.
-- **Recovery:** Verify the `SHIPPO_API_KEY` environment variable is set correctly. Check if the key starts with `shippo_test_` (test mode) or `shippo_live_` (live mode). The user may need to regenerate their API key in the Shippo dashboard.
+- **Pattern:** HTTP 401, `"Invalid API token"`, `"Token does not exist"`, or `"Authentication credentials were not provided"`.
+- **Cause:** No valid OAuth token reached Shippo. Either the Shippo MCP OAuth session has not been authorized yet, or the token has expired or been revoked.
+- **Recovery:** Re-authorize the Shippo MCP OAuth session. In Claude Code, run `/mcp` and sign in. Confirm the authorized account has access to the resource.
 
-### Wrong mode
-- **Pattern:** Resources created in test mode not found in live mode (or vice versa)
-- **Cause:** Test and live mode have completely separate data. An object ID from test mode will not resolve in live mode.
-- **Recovery:** Verify the API key mode matches the resources being accessed. See test-mode.md for details.
+### Object not found
+- **Pattern:** A valid-looking object ID returns a not-found error.
+- **Cause:** The object does not exist on the authorized account, or it belongs to a different account.
+- **Recovery:** Confirm you are signed in to the account that owns the object.
 
 ---
 
@@ -144,5 +150,34 @@ Common Shippo API errors, their causes, and recovery steps.
 1. **Check the full error response.** Shippo error messages are usually descriptive. Read the `detail` or `messages` field.
 2. **Validate addresses first.** Most shipment and label errors trace back to address issues.
 3. **Check object status.** For async operations, always poll until the final status before proceeding.
-4. **Verify API key mode.** Test vs live mode is the most common source of "not found" errors.
+4. **Verify the account.** A "not found" usually means the object lives on a different account; confirm you are signed in to the owning account.
 5. **Check carrier account.** Ensure the carrier is configured and enabled for the desired route.
+
+---
+
+## Non-envelope MCP-protocol errors
+
+Some failures bypass the Speakeasy [response envelope](response-envelope.md) entirely and surface as MCP-protocol-level errors instead. Two flavors:
+
+### Tool-result errors (`isError: true`)
+
+The MCP tool response has `isError: true` with a single text block containing a plaintext message:
+
+```
+Unexpected API response status or content-type:
+Status 404 Content-Type application/json Body: {"detail":"Not found."}
+```
+
+These typically indicate the upstream Shippo API returned an unexpected shape (e.g. a 404 on a tracking lookup the SDK didn't anticipate). Report the plaintext body to the user verbatim, it carries the actual error detail.
+
+### Argument-validation errors (JSON-RPC `-32602`)
+
+Pre-call validation failures (missing required field, type mismatch) return JSON-RPC error code `-32602` ("Invalid params") with a `message` field describing the failure. These are MCP-client-side; correct the arguments and retry.
+
+### Handling both paths
+
+When reporting errors:
+
+1. Check for `isError: true` on the tool result first.
+2. If absent, check `StatusCode` inside the envelope.
+3. If JSON-RPC `-32602` is returned, the call never reached Shippo, it's an arg-shape problem, not an API problem.

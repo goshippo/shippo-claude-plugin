@@ -1,3 +1,9 @@
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/shippo/references/address-formats.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
+
 # Address Formats
 
 Shippo uses two address field naming conventions (v1 and v2) depending on the endpoint. This document clarifies which format to use where.
@@ -6,7 +12,7 @@ Shippo uses two address field naming conventions (v1 and v2) depending on the en
 
 ## V1 Field Names
 
-Used by: `shipments-create` (inline addresses), `batches-create`, `addresses-create-v1`, `manifests-create`, `orders-create`
+Used by: `CreateShipment` (inline addresses), `CreateBatch`, `CreateAddress`, `CreateManifest`, `CreateOrder`
 
 | Field | Required | Description |
 |---|---|---|
@@ -45,9 +51,9 @@ Used by: `shipments-create` (inline addresses), `batches-create`, `addresses-cre
 
 ## V2 Field Names
 
-Used by: `addresses-create-v2`, `addresses-validate-v2`
+Used by: `CreateAddress`, `ValidateAddress`
 
-Returned by: `addresses-parse`
+Returned by: `ParseAddress`
 
 | Field | Required | Description |
 |---|---|---|
@@ -84,7 +90,7 @@ Returned by: `addresses-parse`
 
 ## Parse Response Format
 
-`addresses-parse` returns v2 field names **without** `country_code` (the parser does not infer country). You must add the country yourself before passing to `addresses-create-v2` or converting to v1 for `shipments-create`.
+`ParseAddress` returns v2 field names **without** `country_code` (the parser does not infer country). You must add the country yourself before passing to `CreateAddress` or converting to v1 for `CreateShipment`.
 
 Example parse response fields:
 ```json
@@ -101,7 +107,7 @@ Example parse response fields:
 
 ## Converting Between V1 and V2
 
-When you get a parse result (v2) and need to use it in `shipments-create` (v1):
+When you get a parse result (v2) and need to use it in `CreateShipment` (v1):
 
 | V2 Field | V1 Field |
 |---|---|

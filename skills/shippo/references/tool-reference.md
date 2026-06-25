@@ -1,6 +1,14 @@
-# Shippo MCP Tool Reference
+<!--
+  ⚠️  DO NOT EDIT. Auto-generated from skills/shippo/references/tool-reference.md by scripts/sync.js
+  Edits here will be overwritten on the next sync.
+  To change this content, edit the canonical source and re-run the sync script.
+-->
 
-Complete list of MCP tools provided by the Shippo server, grouped by category. Includes required/optional parameters, data types, and async behavior.
+# Shippo MCP Operation Reference
+
+Reference for the Shippo operations callable through the hosted MCP server, grouped by category. Includes required/optional parameters, data types, and async behavior.
+
+**How these are invoked:** the server exposes a 4-tool meta-API (`shippo_list_tools`, `shippo_describe_tool`, `shippo_read_execute_tool`, `shippo_write_execute_tool`). The names below (e.g. `CreateShipment`, `ValidateAddress`, `GetTrack`) are operation names you pass to `shippo_read_execute_tool` (reads) or `shippo_write_execute_tool` (writes), not standalone MCP tools. See the `shippo-best-practices` skill for the discover-then-execute pattern.
 
 **Data type note:** Dimensions (length, width, height) and weight values must be passed as **strings**, not numbers (e.g., `"12"` not `12`). This applies to parcels, customs items, and all weight/dimension fields.
 
@@ -8,33 +16,31 @@ Complete list of MCP tools provided by the Shippo server, grouped by category. I
 
 ## Addresses
 
-### `addresses-create-v2` (preferred)
+### `CreateAddress` (preferred)
 Create and validate a new address using v2 field names. Returns validation results.
 - **Required:** `name` (string), `address_line_1` (string), `city_locality` (string), `country_code` (string, ISO 3166-1 alpha-2)
 - **Optional:** `address_line_2` (string), `address_line_3` (string), `state_province` (string), `postal_code` (string), `phone` (string), `email` (string), `company` (string), `is_residential` (boolean)
 
-### `addresses-validate-v2`
-Validate an existing address by object ID using v2 validation.
-- **Required:** `address_id` (string)
+### `ValidateAddress`
+Validate a US or international address by its fields using v2 field names. Returns validation results plus a recommended address.
+- **Required:** `address_line_1` (string), `country_code` (string, ISO 3166-1 alpha-2)
+- **US needs:** `state_province` + `city_locality` + `address_line_1`, **or** `address_line_1` + `postal_code`
+- **International needs:** `city_locality` + `address_line_1`
+- **Optional:** `city_locality` (string), `state_province` (string), `postal_code` (string), `address_line_2` (string), `organization` (string), `name` (string)
 
-### `addresses-parse`
+### `ParseAddress`
 Parse a freeform address string into structured components. Returns v2 field names (no country).
 - **Required:** `address_string` (string, freeform address text)
 
-### `addresses-create-v1` (legacy)
-Create an address without automatic validation. Uses v1 field names.
-- **Required:** `name` (string), `street1` (string), `city` (string), `country` (string, ISO 3166-1 alpha-2)
-- **Optional:** `street2` (string), `street3` (string), `state` (string), `zip` (string), `phone` (string), `email` (string), `company` (string), `is_residential` (boolean), `validate` (boolean), `metadata` (string)
-
-### `addresses-validate-existing` (legacy)
-Validate an existing address by object ID using v1 validation.
+### `ValidateAddressByID` (legacy)
+Validate an existing address by object ID using v1 field names.
 - **Required:** `address_id` (string)
 
-### `addresses-get`
+### `GetAddress`
 Retrieve a previously created address by ID.
 - **Required:** `address_id` (string)
 
-### `addresses-list`
+### `ListAddresses`
 List all stored addresses. Supports pagination.
 - **Optional:** `page` (integer), `results` (integer, page size)
 
@@ -42,21 +48,21 @@ List all stored addresses. Supports pagination.
 
 ## Shipments
 
-### `shipments-create`
-Create a new shipment and retrieve available rates. **Async:** if `async` is true (default), returns immediately and rates must be polled via `shipments-get` or `shipments-list-rates`.
+### `CreateShipment`
+Create a new shipment and retrieve available rates. **Async:** if `async` is true (default), returns immediately and rates must be polled via `GetShipment` or `ListShipmentRates`.
 - **Required:** `address_from` (object or string ID, v1 field names for inline), `address_to` (object or string ID, v1 field names for inline), `parcels` (array of parcel objects or string IDs)
 - **Optional:** `customs_declaration` (string, object ID), `extra` (object, for signature, insurance, etc.), `metadata` (string), `async` (boolean, default true), `carrier_accounts` (array of carrier account IDs to filter rates)
 - **Note:** Inline address objects use v1 names: `name`, `street1`, `city`, `state`, `zip`, `country`
 
-### `shipments-get`
+### `GetShipment`
 Retrieve a shipment by ID. Use to poll for rates after async creation.
 - **Required:** `shipment_id` (string)
 
-### `shipments-list`
+### `ListShipments`
 List all shipments. Supports pagination.
 - **Optional:** `page` (integer), `results` (integer, page size)
 
-### `shipments-list-rates`
+### `ListShipmentRates`
 Retrieve rates for an existing shipment by ID.
 - **Required:** `shipment_id` (string)
 
@@ -64,27 +70,27 @@ Retrieve rates for an existing shipment by ID.
 
 ## Rates
 
-### `rates-get`
+### `GetRate`
 Retrieve a specific rate by ID.
 - **Required:** `rate_id` (string)
 
-### `rates-list-by-currency-code`
+### `ListShipmentRatesByCurrencyCode`
 Retrieve shipment rates filtered to a specific currency.
 - **Required:** `shipment_id` (string), `currency_code` (string, ISO 4217 e.g., `USD`)
 - **Optional:** `page` (integer), `results` (integer)
 
-### `rates-at-checkout-create`
+### `CreateLiveRate`
 Generate live rates for a checkout flow with line items and address.
 - **Required:** `address_to` (object), `line_items` (array), `parcel` (object or template)
 - **Optional:** `address_from` (object), `carrier_accounts` (array)
 
-### `rates-at-checkout-get-default-parcel-template`
+### `GetDefaultParcelTemplate`
 Show the current default parcel template for checkout rates. No parameters.
 
-### `rates-at-checkout-delete-default-parcel-template`
+### `DeleteDefaultParcelTemplate`
 Clear the current default parcel template. No parameters.
 
-### `rates-at-checkout-update-parcel-template`
+### `UpdateDefaultParcelTemplate`
 Update the default parcel template for checkout rates.
 - **Required:** `object_id` (string, parcel template ID)
 
@@ -92,17 +98,17 @@ Update the default parcel template for checkout rates.
 
 ## Transactions (Labels)
 
-### `transactions-create`
-Purchase a shipping label from an existing rate. **Async:** returns immediately with status `QUEUED`; poll via `transactions-get` until status is `SUCCESS` or `ERROR`.
+### `CreateTransaction`
+Purchase a shipping label from an existing rate. **Async:** returns immediately with status `QUEUED`; poll via `GetTransaction` until status is `SUCCESS` or `ERROR`.
 - **Required:** `rate` (string, rate object_id)
 - **Optional:** `label_file_type` (string, e.g., `PDF_4x6`, `PNG`, `ZPLII`), `async` (boolean, default true), `metadata` (string)
 - **Response includes:** `label_url`, `tracking_number`, `tracking_url_provider` when status is `SUCCESS`
 
-### `transactions-get`
+### `GetTransaction`
 Retrieve a transaction (label) by ID. Use to poll async label purchases.
 - **Required:** `transaction_id` (string)
 
-### `transactions-list`
+### `ListTransactions`
 List all transactions. Supports filtering and pagination.
 - **Optional:** `page` (integer), `results` (integer), `object_status` (string), `tracking_status` (string)
 
@@ -110,11 +116,11 @@ List all transactions. Supports filtering and pagination.
 
 ## Tracking
 
-### `tracking-status-get`
+### `GetTrack`
 Get current tracking status for a carrier + tracking number.
 - **Required:** `carrier` (string, carrier token e.g., `usps`, `ups`, `fedex`, `dhl_express`), `tracking_number` (string)
 
-### `tracking-status-create`
+### `CreateTrack`
 Register a shipment for tracking webhook notifications.
 - **Required:** `carrier` (string), `tracking_number` (string)
 - **Optional:** `metadata` (string)
@@ -123,25 +129,25 @@ Register a shipment for tracking webhook notifications.
 
 ## Batches
 
-### `batches-create`
-Create a new batch of shipments. **Async:** returns immediately with status `VALIDATING`; poll via `batches-get` until status is `VALID` or `INVALID`.
+### `CreateBatch`
+Create a new batch of shipments. **Async:** returns immediately with status `VALIDATING`; poll via `GetBatch` until status is `VALID` or `INVALID`.
 - **Required:** `default_carrier_account` (string, carrier account ID), `default_servicelevel_token` (string), `batch_shipments` (array of batch shipment objects)
 - **Optional:** `label_filetype` (string), `metadata` (string), `label_size` (string)
 - **Each batch shipment object requires:** `shipment` (object with `address_from`, `address_to`, `parcels`, and optionally `customs_declaration`)
 
-### `batches-get`
+### `GetBatch`
 Retrieve a batch by ID. Includes status and per-shipment results.
 - **Required:** `batch_id` (string)
 
-### `batches-purchase`
-Purchase labels for all valid shipments in a batch. **Async:** triggers purchase; poll `batches-get` until status is `PURCHASED`.
+### `PurchaseBatch`
+Purchase labels for all valid shipments in a batch. **Async:** triggers purchase; poll `GetBatch` until status is `PURCHASED`.
 - **Required:** `batch_id` (string)
 
-### `batches-add-shipments`
+### `AddShipmentsToBatch`
 Add shipments to an existing batch (before purchase only).
 - **Required:** `batch_id` (string), `body` (array of batch shipment objects)
 
-### `batches-remove-shipments`
+### `RemoveShipmentsFromBatch`
 Remove shipments from an existing batch (before purchase only).
 - **Required:** `batch_id` (string), `shipment_ids` (array of string IDs)
 
@@ -149,29 +155,29 @@ Remove shipments from an existing batch (before purchase only).
 
 ## Customs
 
-### `customs-declarations-create`
+### `CreateCustomsDeclaration`
 Create a customs declaration for international shipments.
 - **Required:** `certify` (boolean, must be true), `certify_signer` (string), `contents_type` (string), `non_delivery_option` (string), `items` (array of customs item object_ids)
 - **Optional:** `contents_explanation` (string, required if contents_type is OTHER), `exporter_reference` (string), `importer_reference` (string), `invoice` (string), `license` (string), `certificate` (string), `notes` (string), `eel_pfc` (string), `incoterm` (string), `b13a_filing_option` (string), `metadata` (string)
 
-### `customs-declarations-get`
+### `GetCustomsDeclaration`
 Retrieve a customs declaration by ID.
 - **Required:** `customs_declaration_id` (string)
 
-### `customs-declarations-list`
+### `ListCustomsDeclarations`
 List all customs declarations. Supports pagination.
 - **Optional:** `page` (integer), `results` (integer)
 
-### `customs-items-create`
+### `CreateCustomsItem`
 Create a customs item (individual line item within a declaration).
 - **Required:** `description` (string), `quantity` (integer), `net_weight` (string), `mass_unit` (string), `value_amount` (string), `value_currency` (string), `origin_country` (string)
 - **Optional:** `tariff_number` (string), `sku_code` (string), `eccn_ear99` (string), `metadata` (string)
 
-### `customs-items-get`
+### `GetCustomsItem`
 Retrieve a customs item by ID.
 - **Required:** `customs_item_id` (string)
 
-### `customs-items-list`
+### `ListCustomsItems`
 List all customs items. Supports pagination.
 - **Optional:** `page` (integer), `results` (integer)
 
@@ -179,16 +185,16 @@ List all customs items. Supports pagination.
 
 ## Manifests
 
-### `manifests-create`
-Create an end-of-day manifest (SCAN form) for carrier pickup. **Async:** returns with status `QUEUED`; poll via `manifests-get`.
+### `CreateManifest`
+Create an end-of-day manifest (SCAN form) for carrier pickup. **Async:** returns with status `QUEUED`; poll via `GetManifest`.
 - **Required:** `carrier_account` (string, carrier account ID), `shipment_date` (string, ISO 8601 date), `address_from` (object or string ID)
 - **Optional:** `transactions` (array of transaction IDs; if omitted, includes all eligible), `async` (boolean)
 
-### `manifests-get`
+### `GetManifest`
 Retrieve a manifest by ID.
 - **Required:** `manifest_id` (string)
 
-### `manifests-list`
+### `ListManifests`
 List all manifests. Supports pagination.
 - **Optional:** `page` (integer), `results` (integer)
 
@@ -196,16 +202,16 @@ List all manifests. Supports pagination.
 
 ## Parcels
 
-### `parcels-create`
+### `CreateParcel`
 Create a new parcel object.
 - **Required:** `length` (string), `width` (string), `height` (string), `distance_unit` (string: `in`, `cm`, `ft`, `m`, `mm`, `yd`), `weight` (string), `mass_unit` (string: `lb`, `kg`, `g`, `oz`)
 - **Optional:** `template` (string, carrier parcel template token), `metadata` (string)
 
-### `parcels-get`
+### `GetParcel`
 Retrieve an existing parcel by ID.
 - **Required:** `parcel_id` (string)
 
-### `parcels-list`
+### `ListParcels`
 List all parcels. Supports pagination.
 - **Optional:** `page` (integer), `results` (integer)
 
@@ -213,32 +219,32 @@ List all parcels. Supports pagination.
 
 ## Parcel Templates
 
-### `carrier-parcel-templates-list`
+### `ListCarrierParcelTemplates`
 List all carrier-provided parcel templates (e.g., USPS Flat Rate). Filterable by carrier.
 - **Optional:** `carrier` (string, carrier token), `include` (string)
 
-### `carrier-parcel-templates-get`
+### `GetCarrierParcelTemplate`
 Retrieve a specific carrier parcel template.
 - **Required:** `carrier_parcel_template_id` (string)
 
-### `user-parcel-templates-list`
+### `ListUserParcelTemplates`
 List all user-created parcel templates. No required parameters.
 
-### `user-parcel-templates-create`
+### `CreateUserParcelTemplate`
 Create a new user parcel template.
 - **Required:** `name` (string), `length` (string), `width` (string), `height` (string), `distance_unit` (string), `weight` (string), `mass_unit` (string)
 - **Optional:** `template` (string)
 
-### `user-parcel-templates-get`
+### `GetUserParcelTemplate`
 Retrieve a user parcel template by ID.
 - **Required:** `user_parcel_template_id` (string)
 
-### `user-parcel-templates-update`
+### `UpdateUserParcelTemplate`
 Update an existing user parcel template.
 - **Required:** `user_parcel_template_id` (string)
 - **Optional:** Same fields as create
 
-### `user-parcel-templates-delete`
+### `DeleteUserParcelTemplate`
 Delete a user parcel template.
 - **Required:** `user_parcel_template_id` (string)
 
@@ -246,32 +252,28 @@ Delete a user parcel template.
 
 ## Carrier Accounts
 
-### `carrier-accounts-list`
+### `ListCarrierAccounts`
 List all carrier accounts. Supports pagination and filtering.
 - **Optional:** `page` (integer), `results` (integer), `carrier` (string), `account_id` (string)
 
-### `carrier-accounts-create`
+### `CreateCarrierAccount`
 Create a new carrier account.
 - **Required:** `carrier` (string), `account_id` (string), `parameters` (object, carrier-specific)
 
-### `carrier-accounts-get`
+### `GetCarrierAccount`
 Retrieve a carrier account by ID.
 - **Required:** `carrier_account_id` (string)
 
-### `carrier-accounts-update`
+### `UpdateCarrierAccount`
 Update a carrier account.
 - **Required:** `carrier_account_id` (string)
 - **Optional:** `account_id` (string), `parameters` (object)
 
-### `carrier-accounts-register`
-Add a Shippo carrier account (e.g., Shippo's USPS managed account).
-- **Required:** `carrier` (string)
-
-### `carrier-accounts-get-registration-status`
+### `GetCarrierRegistrationStatus`
 Get carrier registration status.
 - **Required:** `carrier` (string)
 
-### `carrier-accounts-initiate-oauth2-signin`
+### `InitiateOauth2Signin`
 Connect a carrier account using OAuth 2.0.
 - **Required:** `carrier_account_id` (string), `redirect_url` (string)
 
@@ -279,37 +281,36 @@ Connect a carrier account using OAuth 2.0.
 
 ## Orders
 
-### `orders-create`
+### `CreateOrder`
 Create a new order.
 - **Required:** `to_address` (object), `line_items` (array), `placed_at` (string, ISO 8601), `order_number` (string), `order_status` (string), `shipping_cost` (string), `shipping_cost_currency` (string)
 - **Optional:** `from_address` (object), `weight` (string), `weight_unit` (string), `notes` (string), `shipping_method` (string)
 
-### `orders-get`
+### `GetOrder`
 Retrieve an order by ID.
 - **Required:** `order_id` (string)
 
-### `orders-list`
+### `ListOrders`
 List all orders. Supports pagination.
 - **Optional:** `page` (integer), `results` (integer), `order_status` (array of strings), `shop_app` (string)
 
-### `orders-get-packing-slip`
-Get a packing slip for an order.
-- **Required:** `order_id` (string)
+### Packing slip (known gap)
+There is no packing-slip tool in the catalog. To retrieve a packing slip for an order, fall back to the REST API: `GET /orders/{order_id}/packingslip`.
 
 ---
 
 ## Refunds
 
-### `refunds-create`
+### `CreateRefund`
 Create a refund (void a label). Must be requested within 30 days of purchase for most carriers.
 - **Required:** `transaction` (string, transaction object_id)
 - **Optional:** `async` (boolean)
 
-### `refunds-get`
+### `GetRefund`
 Retrieve a refund by ID.
 - **Required:** `refund_id` (string)
 
-### `refunds-list`
+### `ListRefunds`
 List all refunds. Supports pagination.
 - **Optional:** `page` (integer), `results` (integer)
 
@@ -317,7 +318,7 @@ List all refunds. Supports pagination.
 
 ## Pickups
 
-### `pickups-create`
+### `CreatePickup`
 Schedule a carrier pickup.
 - **Required:** `carrier_account` (string), `location` (object with address and building info), `transactions` (array of transaction IDs), `requested_start_time` (string, ISO 8601), `requested_end_time` (string, ISO 8601)
 - **Optional:** `is_test` (boolean)
@@ -326,19 +327,19 @@ Schedule a carrier pickup.
 
 ## Service Groups
 
-### `service-groups-list`
+### `ListServiceGroups`
 List all service groups. No required parameters.
 
-### `service-groups-create`
+### `CreateServiceGroup`
 Create a new service group.
 - **Required:** `name` (string), `description` (string), `flat_rate` (string), `flat_rate_currency` (string), `service_levels` (array)
 
-### `service-groups-update`
+### `UpdateServiceGroup`
 Update an existing service group.
 - **Required:** `service_group_id` (string)
 - **Optional:** Same fields as create
 
-### `service-groups-delete`
+### `DeleteServiceGroup`
 Delete a service group.
 - **Required:** `service_group_id` (string)
 
@@ -346,24 +347,24 @@ Delete a service group.
 
 ## Webhooks
 
-### `webhooks-create`
+### `createWebhook`
 Create a new webhook subscription.
 - **Required:** `url` (string), `event` (string, e.g., `track_updated`, `transaction_created`, `batch_created`)
 - **Optional:** `is_test` (boolean), `active` (boolean)
 
-### `webhooks-get`
+### `getWebhook`
 Retrieve a specific webhook.
 - **Required:** `webhook_id` (string)
 
-### `webhooks-list`
+### `listWebhooks`
 List all webhooks. No required parameters.
 
-### `webhooks-update`
+### `updateWebhook`
 Update an existing webhook.
 - **Required:** `webhook_id` (string)
 - **Optional:** `url` (string), `event` (string), `is_test` (boolean), `active` (boolean)
 
-### `webhooks-delete`
+### `deleteWebhook`
 Delete a webhook.
 - **Required:** `webhook_id` (string)
 
@@ -371,19 +372,19 @@ Delete a webhook.
 
 ## Shippo Accounts
 
-### `shippo-accounts-list`
+### `ListShippoAccounts`
 List all Shippo accounts. Supports pagination.
 - **Optional:** `page` (integer), `results` (integer)
 
-### `shippo-accounts-create`
+### `CreateShippoAccount`
 Create a Shippo account.
 - **Required:** `email` (string), `first_name` (string), `last_name` (string), `company_name` (string)
 
-### `shippo-accounts-get`
+### `GetShippoAccount`
 Retrieve a Shippo account.
 - **Required:** `shippo_account_id` (string)
 
-### `shippo-accounts-update`
+### `UpdateShippoAccount`
 Update a Shippo account.
 - **Required:** `shippo_account_id` (string)
 - **Optional:** `email` (string), `first_name` (string), `last_name` (string), `company_name` (string)
@@ -396,9 +397,9 @@ These tools return immediately and require polling to get final results:
 
 | Tool | Initial Status | Poll With | Final Status |
 |---|---|---|---|
-| `shipments-create` (async=true) | `QUEUED` | `shipments-get` | rates populated |
-| `transactions-create` | `QUEUED` | `transactions-get` | `SUCCESS` or `ERROR` |
-| `batches-create` | `VALIDATING` | `batches-get` | `VALID` or `INVALID` |
-| `batches-purchase` | `PURCHASING` | `batches-get` | `PURCHASED` |
-| `manifests-create` | `QUEUED` | `manifests-get` | `SUCCESS` or `ERROR` |
-| `refunds-create` (async=true) | `QUEUED` | `refunds-get` | `SUCCESS` or `ERROR` |
+| `CreateShipment` (async=true) | `QUEUED` | `GetShipment` | rates populated |
+| `CreateTransaction` | `QUEUED` | `GetTransaction` | `SUCCESS` or `ERROR` |
+| `CreateBatch` | `VALIDATING` | `GetBatch` | `VALID` or `INVALID` |
+| `PurchaseBatch` | `PURCHASING` | `GetBatch` | `PURCHASED` |
+| `CreateManifest` | `QUEUED` | `GetManifest` | `SUCCESS` or `ERROR` |
+| `CreateRefund` (async=true) | `QUEUED` | `GetRefund` | `SUCCESS` or `ERROR` |
