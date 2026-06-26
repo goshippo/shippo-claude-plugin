@@ -1,0 +1,21 @@
+# Local Claude / editor / OS state. Never commit these.
+# NOTE: do NOT ignore .claude-plugin/ , it is the load-bearing plugin manifest dir.
+.claude/
+.claude-code/
+.claude.json
+CLAUDE.local.md
+
+# Secrets / env
+.env
+.env.*
+.env*.local
+
+# Dependencies / build output
+node_modules/
+dist/
+build/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
