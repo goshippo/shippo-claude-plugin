@@ -1,0 +1,36 @@
+name: Validate
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON manifests
+        run: |
+          set -euo pipefail
+          for f in $(git ls-files '*.json'); do
+            python3 -c "import json; json.load(open('$f'))" || { echo "::error file=$f::invalid JSON"; exit 1; }
+            echo "ok: $f"
+          done
+      - name: Secret / token leak scan
+        run: |
+          set -euo pipefail
+          PATTERN='shippo_(live|test)_[0-9a-f]{30,}|AKIA[0-9A-Z]{16}|NRAK-[A-Z0-9]{20,}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,}|sk-ant-[A-Za-z0-9-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+          if git grep -nIE "$PATTERN" -- . ':(exclude).github/workflows/validate.yml'; then
+            echo "::error::potential credential found in repo"; exit 1
+          fi
+          echo "no credentials found"
+      - name: Assert .mcp.json is safe (hosted OAuth, no static auth)
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          blob = json.dumps(json.load(open(".mcp.json"))).lower()
+          assert "https://mcp.shippo.com" in blob, ".mcp.json must point at https://mcp.shippo.com"
+          for bad in ("authorization", "shippotoken", "api_key", "apikey", "x-api-key", "bearer "):
+              assert bad not in blob, f".mcp.json must not carry a static auth secret ({bad}); use per-user OAuth"
+          print("mcp.json OK: hosted endpoint, no static auth header")
+          PY
